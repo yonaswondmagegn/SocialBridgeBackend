@@ -93,8 +93,9 @@ class PostToFacebookMarketplace(APIView):
             chrome_otp = Options()
             chrome_otp.add_argument("--headless=new")
             # chrome_otp.add_argument("--no-sandbox")
-            # chrome_otp.add_argument("--headless")
-            # chrome_otp.add_argument("--disable-gpu")
+            chrome_otp.add_argument("--headless")
+            chrome_otp.add_argument("--window-size=1920,1080")
+            chrome_otp.add_argument("--disable-gpu")
             # chrome_otp.add_argument("--disable-dev-shm-usage")
        
 
@@ -112,11 +113,9 @@ class PostToFacebookMarketplace(APIView):
                 for cookie in cookies:
                     driver.add_cookie(cookie)
             except:
-                print('cookie error')
+                return Response({'error':'cookie error'},status=status.HTTP_400_BAD_REQUEST)
 
-            print('a')
             driver.get('https://www.facebook.com/marketplace/create/item')
-            print('b')
             def remove_emojis(text):
                         emoji_pattern = re.compile(
                             "["
@@ -166,47 +165,28 @@ class PostToFacebookMarketplace(APIView):
                 # except:
                 #     print('coping error')
                 #      # Remove emojis
-                # removed_text = remove_emojis(title)
-                # first_input[5].send_keys(title)
+                removed_text = remove_emojis(title)
+                first_input[5].send_keys(removed_text)
 
-                print('alpah')
-                actions = ActionChains(driver)
-                actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL)
-                actions.perform()
-                driver.save_screenshot('title.png')
                 first_input[6].send_keys(price)
-                print('1')
                 category_button = driver.find_element(By.CSS_SELECTOR, 'label[aria-label="Category"]')
-                print('2')
                 category_button.click()
-                print('3')
                 element = driver.find_element(By.XPATH, f"//span[text()='{category}']/ancestor::div[@role='button']")
-                print('4')
                 element.click()
-                print('5')
                 condtion_button = driver.find_element(By.CSS_SELECTOR, 'label[aria-label="Condition"]')
-                print('6')
                 condtion_button.click()
-                print('7')
                 n_bt = driver.find_element(By.XPATH,"//span[text()='New']")
-                print('8')
                 n_bt.click()
-                print('9')
                 d_input = driver.find_elements(By.TAG_NAME,'textarea')
-                print('10')
-                pyperclip.copy(description)
-                d_input[0].send_keys(description)
-                driver.save_screenshot('screenshot2.png')
-                print('beta')
+                disc_emoj = remove_emojis(description)
+                d_input[0].send_keys(disc_emoj)
                 try:
                     n_button = WebDriverWait(driver, 100).until(
                         EC.element_to_be_clickable((By.XPATH, "//div[@role='button' and @aria-label='Next']"))
                     )
-                    driver.save_screenshot('d.png')
                     n_button.click()
                 except:
                     print('nbutton Error')
-                print('runing the next thing')
                 if not n_button:
                     print('n button not found')
                 try:
@@ -214,30 +194,22 @@ class PostToFacebookMarketplace(APIView):
                         EC.element_to_be_clickable((By.XPATH, "//span[text()='Publish']"))
                     )
                 except:
-                    driver.save_screenshot('next.png')
-                    print('publish button not find')
-                print(publish_button)
+                    return Response({'error':"can't get publish button "},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 if publish_button:
-                    print('done all that all all write that is all ')
                     class_name = "span x1lliihq x6ikm8r x10wlt62 x1n2onr6"
                     array_list = class_name.split(" ")
                     class_join = '.'.join(array_list)
-                    print(class_join)
                     WebDriverWait(driver, 100).until(
                         EC.presence_of_element_located((By.CSS_SELECTOR, class_join))
                     )
-                    print('hellow world lakjsasdf')
-                    driver.save_screenshot('screenshot1.png')
                     d_ele = driver.find_elements(By.CSS_SELECTOR, class_join)
                     for c_e in d_ele[:20]:
                         c_e.click()
-                    driver.save_screenshot('screenshot3.png')
                     publish_button.click()
                 else:
                     
-                    print("Can't found publish button")
+                    return Response({'error':"can't get publish button "},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
-                print(f"File upload failed: {e}")
                 return Response({"error": "File upload failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
             return Response({"message": "Image uploaded successfully"}, status=status.HTTP_200_OK)
