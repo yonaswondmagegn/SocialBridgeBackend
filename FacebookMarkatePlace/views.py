@@ -127,7 +127,7 @@ class PostToFacebookMarketplace(APIView):
                             "\U0001F700-\U0001F77F"  
                             "\U0001F780-\U0001F7FF"  
                             "\U0001F800-\U0001F8FF"  
-                            "\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
+                            "\U0001F900-\U0001F9FF"  
                             "\U0001FA00-\U0001FAFF"  # Chess Symbols
                             "\U00002702-\U000027B0"  # Dingbats
                             "]+", flags=re.UNICODE)
@@ -155,18 +155,11 @@ class PostToFacebookMarketplace(APIView):
                 except:
                     print(' two not found sorry')
                 print('continue two ')
-                try:
-                    driver.save_screenshot('inpuscreenshott.png')
-                except:
-                    print('saving screen shoot error')
                 first_input = driver.find_elements(By.TAG_NAME, "input") 
-                first_input[5].click()
-                pyperclip.copy(title)
-                # try:
-                #     first_input[5].send_keys(Keys.CONTROL,'v')
-                # except:
-                #     print('coping error')
-                #      # Remove emojis
+                try:
+                    first_input[5].click()
+                except:
+                    print('input not clicabnle')
                 removed_text = remove_emojis(title)
                 first_input[5].send_keys(removed_text)
 
