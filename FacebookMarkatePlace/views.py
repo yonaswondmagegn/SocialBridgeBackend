@@ -87,7 +87,7 @@ class PostToFacebookMarketplace(APIView):
                 return Response({"error": "description is Requred"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-            PATH = 'C:/chromedriver.exe'
+            PATH = '/home/yonas/SocialBridgeBackend/chromedriver-linux64/chromedriver'
             service = Service(PATH)
             
             chrome_otp = Options()
