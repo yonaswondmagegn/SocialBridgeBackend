@@ -92,11 +92,11 @@ class PostToFacebookMarketplace(APIView):
             
             chrome_otp = Options()
             chrome_otp.add_argument("--headless=new")
-            # chrome_otp.add_argument("--no-sandbox")
+            chrome_otp.add_argument("--no-sandbox")
             chrome_otp.add_argument("--headless")
             chrome_otp.add_argument("--window-size=1920,1080")
             chrome_otp.add_argument("--disable-gpu")
-            # chrome_otp.add_argument("--disable-dev-shm-usage")
+            chrome_otp.add_argument("--disable-dev-shm-usage")
        
 
             prefs = {
@@ -196,9 +196,7 @@ class PostToFacebookMarketplace(APIView):
                 except:
                     return Response({'error':"can't get publish button "},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 if publish_button:
-                    class_name = "span x1lliihq x6ikm8r x10wlt62 x1n2onr6"
-                    array_list = class_name.split(" ")
-                    class_join = '.'.join(array_list)
+                    class_join = "div.x9f619.x1ja2u2z.x78zum5.x1n2onr6.x1iyjqo2.xs83m0k.xeuugli.x1qughib.x6s0dn4.x1a02dak.x1q0g3np.xdl72j9 > div > div > div > div:nth-child(1) > span > span > span"
                     WebDriverWait(driver, 100).until(
                         EC.presence_of_element_located((By.CSS_SELECTOR, class_join))
                     )
