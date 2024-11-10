@@ -41,11 +41,8 @@
 #         except:
 #             print('hellow world')
 
-import time
 import re
 import os
-import base64
-import pyperclip
 import pickle
 from django.core.files.base import ContentFile
 from selenium import webdriver
@@ -58,13 +55,11 @@ from rest_framework import status
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
 
 class PostToFacebookMarketplace(APIView):
     def post(self, request):
         try:
             image_file = request.FILES.get('image')
-            print(image_file)
             if not image_file:
                 return Response({"error": "No image file found"}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -77,14 +72,10 @@ class PostToFacebookMarketplace(APIView):
                 return Response({"error": "title is Requred"}, status=status.HTTP_400_BAD_REQUEST)
             price = request.data.get('price')
             category = request.data.get('category')
-            print(category)
             if not price:
                 price = 0
-            print(price)
-            print(int(price))
             description  = request.data.get("discription")
             if not description:
-                print('ded')
                 return Response({"error": "description is Requred"}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -117,7 +108,6 @@ class PostToFacebookMarketplace(APIView):
                 return Response({'error':'cookie error'},status=status.HTTP_400_BAD_REQUEST)
 
             driver.get('https://www.facebook.com/marketplace/create/item')
-            print('b')
             def remove_emojis(text):
                         emoji_pattern = re.compile(
                             "["
@@ -138,23 +128,18 @@ class PostToFacebookMarketplace(APIView):
                     WebDriverWait(driver, 30).until(
                         EC.presence_of_element_located((By.XPATH, "//input[@type='file']"))
                     )
-                    print('found it ..coutninue')
                 except:
                     print('not found sorry')
-                print('continue one')
 
                 file_input = driver.find_element(By.XPATH, "//input[@type='file']")
                 file_input.send_keys(os.path.abspath(temp_image_path))  
-                print(f"File input success: {file_input}")
                 try:
                     image_xpath = "//img[contains(@class, 'x1lcm9me') and contains(@class, 'x1yr5g0i') and contains(@class, 'xrt01vj') and @alt='']"
                     WebDriverWait(driver, 60).until(
                         EC.visibility_of_element_located((By.XPATH, image_xpath))
                     )
-                    print(' two found it ..coutninue')
                 except:
                     print(' two not found sorry')
-                print('continue two ')
                 first_input = driver.find_elements(By.TAG_NAME, "input") 
                 try:
                     first_input[5].click()
@@ -211,6 +196,5 @@ class PostToFacebookMarketplace(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         finally:
-            # Clean up the temporary image file
             if os.path.exists(temp_image_path):
                 os.remove(temp_image_path)
