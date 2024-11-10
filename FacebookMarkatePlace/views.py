@@ -84,6 +84,7 @@ class PostToFacebookMarketplace(APIView):
             print(int(price))
             description  = request.data.get("discription")
             if not description:
+                print('ded')
                 return Response({"error": "description is Requred"}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -109,13 +110,14 @@ class PostToFacebookMarketplace(APIView):
 
         
             try:
-                cookies = pickle.load(open(r"C:\Users\yonas\Desktop\project\SaaSProjects\bridge\FacebookMarkatePlace\facebook_cookies.pkl", "rb"))
+                cookies = pickle.load(open(r"/home/yonas/SocialBridgeBackend/FacebookMarkatePlace/facebook_cookies.pkl", "rb"))
                 for cookie in cookies:
                     driver.add_cookie(cookie)
             except:
                 return Response({'error':'cookie error'},status=status.HTTP_400_BAD_REQUEST)
 
             driver.get('https://www.facebook.com/marketplace/create/item')
+            print('b')
             def remove_emojis(text):
                         emoji_pattern = re.compile(
                             "["
