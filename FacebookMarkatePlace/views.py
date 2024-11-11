@@ -55,7 +55,7 @@ from rest_framework import status
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-
+from tempfile import NamedTemporaryFile
 
 class PostToFacebookMarketplace(APIView):
     def post(self, request):
@@ -90,10 +90,11 @@ class PostToFacebookMarketplace(APIView):
                 "profile.default_content_setting_values.notifications": 2
             }
             chrome_otp.add_experimental_option("prefs", prefs)
-
+            print('a')
             driver = webdriver.Chrome(service=service, options=chrome_otp)
             driver.get('https://www.facebook.com')
 
+            print('a1')
             try:
                 cookies = pickle.load(open(r"/home/yonas/SocialBridgeBackend/FacebookMarkatePlace/facebook_cookies.pkl", "rb"))
                 for cookie in cookies:
@@ -101,6 +102,7 @@ class PostToFacebookMarketplace(APIView):
             except:
                 return Response({'error': 'cookie error'}, status=status.HTTP_400_BAD_REQUEST)
 
+            print('a3')
             driver.get('https://www.facebook.com/marketplace/create/item')
 
             def remove_emojis(text):
@@ -143,8 +145,11 @@ class PostToFacebookMarketplace(APIView):
                     first_input[5].click()
                 except:
                     print('input not clicabnle')
+                print('a4')
                 removed_text = remove_emojis(title)
+                print('a5')
                 first_input[5].send_keys(removed_text)
+                print('a6')
 
                 first_input[6].send_keys(price)
                 category_button = driver.find_element(
@@ -154,6 +159,7 @@ class PostToFacebookMarketplace(APIView):
                     By.XPATH, f"//span[text()='{category}']/ancestor::div[@role='button']")
                 driver.save_screenshot('category_p.png')
                 element.click()
+                print('a7')
 
                 condtion_button = driver.find_element(
                     By.CSS_SELECTOR, 'label[aria-label="Condition"]')
@@ -161,6 +167,7 @@ class PostToFacebookMarketplace(APIView):
                 n_bt = driver.find_element(By.XPATH, "//span[text()='New']")
                 n_bt.click()
                 d_input = driver.find_elements(By.TAG_NAME, 'textarea')
+                print('a8')
                 disc_emoj = remove_emojis(description)
                 d_input[0].send_keys(disc_emoj)
                 try:
@@ -171,6 +178,7 @@ class PostToFacebookMarketplace(APIView):
                     n_button.click()
                 except:
                     print('nbutton Error')
+                print('a8')
                 if not n_button:
                     print('n button not found')
                 try:
