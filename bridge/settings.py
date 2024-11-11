@@ -173,3 +173,31 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# [Unit]
+# Description=gunicorn daemon for Django project
+# After=network.target
+
+# [Service]
+# User=yonas
+# Group=www-data
+# WorkingDirectory=/home/yonas/SocialBridgeBackend
+# ExecStart=/home/yonas/env/bin/gunicorn --workers 3 --bind unix:/home/yonas/SocialBridgeBackend/bridge.sock bridge.wsgi:application
+
+# [Install]
+# WantedBy=multi-user.target
+# /home/yonas/env/bin/python3 /home/yonas/env/bin/gunicorn --workers 3 --bind unix:/home/yonas/SocialBridgeBackend/bridge.sock bridge.wsgi:application
+
+# server {
+#     listen 80;
+#     server_name 51.120.246.52;
+
+#     location / {
+#         proxy_pass http://unix:/home/yonas/SocialBridgeBackend/bridge.sock;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#     }
+
+
+# }

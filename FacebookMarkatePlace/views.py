@@ -18,11 +18,11 @@
 #         print(image_data)
 #         PATH = 'C:/chromedriver.exe'
 #         services = Service(PATH)
-        
+
 #         chrome_otp = Options()
 
 #         prefs = {
-#             "profile.default_content_setting_values.notifications": 2 
+#             "profile.default_content_setting_values.notifications": 2
 #         }
 #         chrome_otp.add_experimental_option("prefs", prefs)
 
@@ -31,7 +31,7 @@
 #         cookies = pickle.load(open("facebook_cookies.pkl", "rb"))
 #         for cookie in cookies:
 #             driver.add_cookie(cookie)
-        
+
 #         driver.get('https://www.facebook.com/marketplace/create/item')
 
 #         try:
@@ -56,17 +56,18 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
+
 class PostToFacebookMarketplace(APIView):
     def post(self, request):
         try:
             image_file = request.FILES.get('image')
             if not image_file:
                 return Response({"error": "No image file found"}, status=status.HTTP_400_BAD_REQUEST)
-            
+
             temp_image_path = f"temp_{image_file.name}"
             with open(temp_image_path, 'wb') as f:
                 f.write(image_file.read())
-        
+
             title = request.data.get('title')
             if not title:
                 return Response({"error": "title is Requred"}, status=status.HTTP_400_BAD_REQUEST)
@@ -74,22 +75,16 @@ class PostToFacebookMarketplace(APIView):
             category = request.data.get('category')
             if not price:
                 price = 0
-            description  = request.data.get("discription")
+            description = request.data.get("discription")
             if not description:
                 return Response({"error": "description is Requred"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-            PATH = '/home/yonas/SocialBridgeBackend/chromedriver-linux64/chromedriver'
+            PATH = '/home/yonas/SocialBridgeBackend/chromedriver-linux64/chromedrive'
             service = Service(PATH)
-            
+
             chrome_otp = Options()
             chrome_otp.add_argument("--headless=new")
-            chrome_otp.add_argument("--no-sandbox")
-            chrome_otp.add_argument("--headless")
             chrome_otp.add_argument("--window-size=1920,1080")
-            chrome_otp.add_argument("--disable-gpu")
-            chrome_otp.add_argument("--disable-dev-shm-usage")
-       
 
             prefs = {
                 "profile.default_content_setting_values.notifications": 2
@@ -99,48 +94,51 @@ class PostToFacebookMarketplace(APIView):
             driver = webdriver.Chrome(service=service, options=chrome_otp)
             driver.get('https://www.facebook.com')
 
-        
             try:
                 cookies = pickle.load(open(r"/home/yonas/SocialBridgeBackend/FacebookMarkatePlace/facebook_cookies.pkl", "rb"))
                 for cookie in cookies:
                     driver.add_cookie(cookie)
             except:
-                return Response({'error':'cookie error'},status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'cookie error'}, status=status.HTTP_400_BAD_REQUEST)
 
             driver.get('https://www.facebook.com/marketplace/create/item')
+
             def remove_emojis(text):
-                        emoji_pattern = re.compile(
-                            "["
-                            "\U0001F600-\U0001F64F"  
-                            "\U0001F300-\U0001F5FF"  
-                            "\U0001F680-\U0001F6FF"  
-                            "\U0001F700-\U0001F77F"  
-                            "\U0001F780-\U0001F7FF"  
-                            "\U0001F800-\U0001F8FF"  
-                            "\U0001F900-\U0001F9FF"  
-                            "\U0001FA00-\U0001FAFF"  # Chess Symbols
-                            "\U00002702-\U000027B0"  # Dingbats
-                            "]+", flags=re.UNICODE)
-                        
-                        return emoji_pattern.sub(r'', text)
+                emoji_pattern = re.compile(
+                    "["
+                    "\U0001F600-\U0001F64F"
+                    "\U0001F300-\U0001F5FF"
+                    "\U0001F680-\U0001F6FF"
+                    "\U0001F700-\U0001F77F"
+                    "\U0001F780-\U0001F7FF"
+                    "\U0001F800-\U0001F8FF"
+                    "\U0001F900-\U0001F9FF"
+                    "\U0001FA00-\U0001FAFF"  
+                    "\U00002702-\U000027B0"  
+                    "]+", flags=re.UNICODE)
+
+                return emoji_pattern.sub(r'', text)
             try:
                 try:
                     WebDriverWait(driver, 30).until(
-                        EC.presence_of_element_located((By.XPATH, "//input[@type='file']"))
+                        EC.presence_of_element_located(
+                            (By.XPATH, "//input[@type='file']"))
                     )
                 except:
                     print('not found sorry')
 
-                file_input = driver.find_element(By.XPATH, "//input[@type='file']")
-                file_input.send_keys(os.path.abspath(temp_image_path))  
+                file_input = driver.find_element(
+                    By.XPATH, "//input[@type='file']")
+                file_input.send_keys(os.path.abspath(temp_image_path))
                 try:
                     image_xpath = "//img[contains(@class, 'x1lcm9me') and contains(@class, 'x1yr5g0i') and contains(@class, 'xrt01vj') and @alt='']"
                     WebDriverWait(driver, 60).until(
-                        EC.visibility_of_element_located((By.XPATH, image_xpath))
+                        EC.visibility_of_element_located(
+                            (By.XPATH, image_xpath))
                     )
                 except:
                     print(' two not found sorry')
-                first_input = driver.find_elements(By.TAG_NAME, "input") 
+                first_input = driver.find_elements(By.TAG_NAME, "input")
                 try:
                     first_input[5].click()
                 except:
@@ -149,20 +147,26 @@ class PostToFacebookMarketplace(APIView):
                 first_input[5].send_keys(removed_text)
 
                 first_input[6].send_keys(price)
-                category_button = driver.find_element(By.CSS_SELECTOR, 'label[aria-label="Category"]')
+                category_button = driver.find_element(
+                    By.CSS_SELECTOR, 'label[aria-label="Category"]')
                 category_button.click()
-                element = driver.find_element(By.XPATH, f"//span[text()='{category}']/ancestor::div[@role='button']")
+                element = driver.find_element(
+                    By.XPATH, f"//span[text()='{category}']/ancestor::div[@role='button']")
+                driver.save_screenshot('category_p.png')
                 element.click()
-                condtion_button = driver.find_element(By.CSS_SELECTOR, 'label[aria-label="Condition"]')
+
+                condtion_button = driver.find_element(
+                    By.CSS_SELECTOR, 'label[aria-label="Condition"]')
                 condtion_button.click()
-                n_bt = driver.find_element(By.XPATH,"//span[text()='New']")
+                n_bt = driver.find_element(By.XPATH, "//span[text()='New']")
                 n_bt.click()
-                d_input = driver.find_elements(By.TAG_NAME,'textarea')
+                d_input = driver.find_elements(By.TAG_NAME, 'textarea')
                 disc_emoj = remove_emojis(description)
                 d_input[0].send_keys(disc_emoj)
                 try:
                     n_button = WebDriverWait(driver, 100).until(
-                        EC.element_to_be_clickable((By.XPATH, "//div[@role='button' and @aria-label='Next']"))
+                        EC.element_to_be_clickable(
+                            (By.XPATH, "//div[@role='button' and @aria-label='Next']"))
                     )
                     n_button.click()
                 except:
@@ -171,28 +175,33 @@ class PostToFacebookMarketplace(APIView):
                     print('n button not found')
                 try:
                     publish_button = WebDriverWait(driver, 100).until(
-                        EC.element_to_be_clickable((By.XPATH, "//span[text()='Publish']"))
+                        EC.element_to_be_clickable(
+                            (By.XPATH, "//span[text()='Publish']"))
                     )
-                except:
-                    return Response({'error':"can't get publish button "},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                except Exception as e:
+                    print(e)
+                    return Response({'error': "can't get publish button "}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 if publish_button:
                     class_join = "div.x9f619.x1ja2u2z.x78zum5.x1n2onr6.x1iyjqo2.xs83m0k.xeuugli.x1qughib.x6s0dn4.x1a02dak.x1q0g3np.xdl72j9 > div > div > div > div:nth-child(1) > span > span > span"
                     WebDriverWait(driver, 100).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, class_join))
+                        EC.presence_of_element_located(
+                            (By.CSS_SELECTOR, class_join))
                     )
                     d_ele = driver.find_elements(By.CSS_SELECTOR, class_join)
                     for c_e in d_ele[:20]:
                         c_e.click()
                     publish_button.click()
                 else:
-                    
-                    return Response({'error':"can't get publish button "},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                    return Response({'error': "can't get publish button "}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
+                print(e)
                 return Response({"error": "File upload failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
+
             return Response({"message": "Image uploaded successfully"}, status=status.HTTP_200_OK)
-        
+
         except Exception as e:
+            print(e)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         finally:
