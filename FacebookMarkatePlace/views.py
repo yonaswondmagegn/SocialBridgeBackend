@@ -131,8 +131,7 @@ class PostToFacebookMarketplace(APIView):
                 except:
                     print('not found sorry')
 
-                file_input = driver.find_element(
-                    By.XPATH, "//input[@type='file']")
+                file_input = driver.find_element(By.XPATH, "//input[@type='file']")
                 file_input.send_keys(os.path.abspath(temp_image_path))
                 try:
                     image_xpath = "//img[contains(@class, 'x1lcm9me') and contains(@class, 'x1yr5g0i') and contains(@class, 'xrt01vj') and @alt='']"
@@ -140,7 +139,8 @@ class PostToFacebookMarketplace(APIView):
                         EC.visibility_of_element_located(
                             (By.XPATH, image_xpath))
                     )
-                except:
+                except Exception as e:
+                    print(e)
                     print(' two not found sorry')
                 first_input = driver.find_elements(By.TAG_NAME, "input")
                 try:
