@@ -81,12 +81,14 @@ class PostToFacebookMarketplace(APIView):
 
             PATH = '/usr/local/bin/chromedriver'
             service = Service(PATH)
+            chrome_otp = Options()
 
             chrome_otp = Options()
             chrome_otp.add_argument("--headless=new")
             chrome_otp.add_argument("--no-sandbox")
             chrome_otp.add_argument("--disable-dev-shm-usage")
             chrome_otp.add_argument("--window-size=1920,1080")
+            chrome_otp.add_argument("--remote-debugging-port=9222")  # Prevent DevToolsActivePort issue
 
             prefs = {
                 "profile.default_content_setting_values.notifications": 2
