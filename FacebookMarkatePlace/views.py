@@ -79,11 +79,13 @@ class PostToFacebookMarketplace(APIView):
             if not description:
                 return Response({"error": "description is Requred"}, status=status.HTTP_400_BAD_REQUEST)
 
-            PATH = '/usr/local/bin/chromedirver'
+            PATH = '/usr/local/bin/chromedriver'
             service = Service(PATH)
 
             chrome_otp = Options()
             chrome_otp.add_argument("--headless=new")
+            chrome_otp.add_argument("--no-sandbox")
+            chrome_otp.add_argument("--disable-dev-shm-usage")
             chrome_otp.add_argument("--window-size=1920,1080")
 
             prefs = {
