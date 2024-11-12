@@ -130,6 +130,7 @@ class PostToFacebookMarketplace(APIView):
                     )
                 except:
                     print('not found sorry')
+                    return Response({'error': 'cookie error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                 file_input = driver.find_element(By.XPATH, "//input[@type='file']")
                 file_input.send_keys(os.path.abspath(temp_image_path))
@@ -142,6 +143,7 @@ class PostToFacebookMarketplace(APIView):
                 except Exception as e:
                     print(e)
                     print(' two not found sorry')
+                    return Response({'error': 'cookie error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 first_input = driver.find_elements(By.TAG_NAME, "input")
                 try:
                     first_input[5].click()
