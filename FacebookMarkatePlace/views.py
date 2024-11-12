@@ -134,16 +134,16 @@ class PostToFacebookMarketplace(APIView):
 
                 file_input = driver.find_element(By.XPATH, "//input[@type='file']")
                 file_input.send_keys(os.path.abspath(temp_image_path))
-                try:
-                    image_xpath = "//img[contains(@class, 'x1lcm9me') and contains(@class, 'x1yr5g0i') and contains(@class, 'xrt01vj') and @alt='']"
-                    WebDriverWait(driver, 60).until(
-                        EC.visibility_of_element_located(
-                            (By.XPATH, image_xpath))
-                    )
-                except Exception as e:
-                    print(e)
-                    print(' two not found sorry')
-                    return Response({'error': 'cookie error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                # try:
+                #     image_xpath = "//img[contains(@class, 'x1lcm9me') and contains(@class, 'x1yr5g0i') and contains(@class, 'xrt01vj') and @alt='']"
+                #     WebDriverWait(driver, 60).until(
+                #         EC.visibility_of_element_located(
+                #             (By.XPATH, image_xpath))
+                #     )
+                # except Exception as e:
+                #     print(e)
+                #     print(' two not found sorry')
+                #     return Response({'error': 'cookie error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 first_input = driver.find_elements(By.TAG_NAME, "input")
                 try:
                     first_input[5].click()
