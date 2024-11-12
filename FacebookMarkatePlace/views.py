@@ -79,7 +79,7 @@ class PostToFacebookMarketplace(APIView):
             if not description:
                 return Response({"error": "description is Requred"}, status=status.HTTP_400_BAD_REQUEST)
 
-            PATH = '/home/yonas/SocialBridgeBackend/chromedriver-linux64/chromedrive'
+            PATH = '/usr/local/bin/chromedirver'
             service = Service(PATH)
 
             chrome_otp = Options()
