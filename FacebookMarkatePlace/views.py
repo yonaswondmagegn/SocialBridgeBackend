@@ -1,46 +1,3 @@
-# from django.shortcuts import render
-# from rest_framework.views import APIView
-# from rest_framework.response import responses
-# from rest_framework import status
-# import base64
-# from django.core.files.base import ContentFile
-# from selenium.webdriver.chrome.options import Options
-
-# from selenium import webdriver
-# from selenium.webdriver.chrome.service import Service
-# from selenium.webdriver.common.by import By
-# import pickle
-
-
-# class PostToFacebookMarkatePlace(APIView):
-#     def post(self,request):
-#         image_data = request.FILES.get('image')
-#         print(image_data)
-#         PATH = 'C:/chromedriver.exe'
-#         services = Service(PATH)
-
-#         chrome_otp = Options()
-
-#         prefs = {
-#             "profile.default_content_setting_values.notifications": 2
-#         }
-#         chrome_otp.add_experimental_option("prefs", prefs)
-
-#         driver = webdriver.Chrome(service=services,options=chrome_otp)
-
-#         cookies = pickle.load(open("facebook_cookies.pkl", "rb"))
-#         for cookie in cookies:
-#             driver.add_cookie(cookie)
-
-#         driver.get('https://www.facebook.com/marketplace/create/item')
-
-#         try:
-#             file_input = driver.find_element(By.XPATH, "//input[@type='file']")
-#             file_input.send_keys(image_data)
-#             print(file_input)
-#         except:
-#             print('hellow world')
-
 import re
 import os
 import pickle
@@ -56,6 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from tempfile import NamedTemporaryFile
+
 
 class PostToFacebookMarketplace(APIView):
     def post(self, request):
@@ -88,7 +46,8 @@ class PostToFacebookMarketplace(APIView):
             chrome_otp.add_argument("--no-sandbox")
             chrome_otp.add_argument("--disable-dev-shm-usage")
             chrome_otp.add_argument("--window-size=1920,1080")
-            chrome_otp.add_argument("--remote-debugging-port=9222")  # Prevent DevToolsActivePort issue
+            # Prevent DevToolsActivePort issue
+            chrome_otp.add_argument("--remote-debugging-port=9222")
 
             prefs = {
                 "profile.default_content_setting_values.notifications": 2
@@ -100,7 +59,8 @@ class PostToFacebookMarketplace(APIView):
 
             print('a1')
             try:
-                cookies = pickle.load(open(r"/home/yonas/SocialBridgeBackend/FacebookMarkatePlace/facebook_cookies.pkl", "rb"))
+                cookies = pickle.load(open(
+                    r"/home/yonas/SocialBridgeBackend/FacebookMarkatePlace/facebook_cookies.pkl", "rb"))
                 for cookie in cookies:
                     driver.add_cookie(cookie)
             except:
@@ -119,8 +79,8 @@ class PostToFacebookMarketplace(APIView):
                     "\U0001F780-\U0001F7FF"
                     "\U0001F800-\U0001F8FF"
                     "\U0001F900-\U0001F9FF"
-                    "\U0001FA00-\U0001FAFF"  
-                    "\U00002702-\U000027B0"  
+                    "\U0001FA00-\U0001FAFF"
+                    "\U00002702-\U000027B0"
                     "]+", flags=re.UNICODE)
 
                 return emoji_pattern.sub(r'', text)
@@ -134,7 +94,8 @@ class PostToFacebookMarketplace(APIView):
                     print('not found sorry')
                     return Response({'error': 'cookie error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                file_input = driver.find_element(By.XPATH, "//input[@type='file']")
+                file_input = driver.find_element(
+                    By.XPATH, "//input[@type='file']")
                 file_input.send_keys(os.path.abspath(temp_image_path))
                 # try:
                 #     image_xpath = "//img[contains(@class, 'x1lcm9me') and contains(@class, 'x1yr5g0i') and contains(@class, 'xrt01vj') and @alt='']"
@@ -221,3 +182,117 @@ class PostToFacebookMarketplace(APIView):
         finally:
             if os.path.exists(temp_image_path):
                 os.remove(temp_image_path)
+
+
+class GetProduct(APIView):
+    def post(self, request):
+        try:
+            url = request.data.get('url')
+            if not url:
+                return Response({'error': 'url is requred'}, status=status.HTTP_400_BAD_REQUEST)
+
+            PATH = '/usr/local/bin/chromedriver'
+            service = Service(PATH)
+            chrome_otp = Options()
+
+            chrome_otp = Options()
+            # chrome_otp.add_argument("--headless=new")
+            # chrome_otp.add_argument("--no-sandbox")
+            # chrome_otp.add_argument("--disable-dev-shm-usage")
+            # chrome_otp.add_argument("--window-size=1920,1080")
+            # chrome_otp.add_argument("--remote-debugging-port=9222")
+
+            prefs = {
+                "profile.default_content_setting_values.notifications": 2
+            }
+            chrome_otp.add_experimental_option("prefs", prefs)
+            print('a')
+            driver = webdriver.Chrome(service=service, options=chrome_otp)
+            driver.get('https://www.facebook.com')
+
+            print('a1')
+            try:
+                cookies = pickle.load(open(
+                    r"/home/yonas/SocialBridgeBackend/FacebookMarkatePlace/facebook_cookies.pkl", "rb"))
+                for cookie in cookies:
+                    driver.add_cookie(cookie)
+            except:
+                return Response({'error': 'cookie error'}, status=status.HTTP_400_BAD_REQUEST)
+
+            driver.get(url)
+            input('enter to continue')
+            
+            img_urls = []
+            title_text = ""
+            price = ""
+            description = ""
+
+            try:
+                # Locate parent div with the specific style
+                parent_div = driver.find_elements(By.CSS_SELECTOR,'.x6s0dn4.x78zum5.x1y1aw1k.xwib8y2.xu6gjpd.x11xpdln.x1r7x56h.xuxw1ft.xc9qbxq.x193iq5w[style="transform: translate3d(0px, 0px, 0px);"]')
+
+                if len(parent_div) == 0:
+                    # Locate images in the alternative span > div > img structure
+                    img_cont = driver.find_elements(By.CSS_SELECTOR,
+                                                    'span.x78zum5.x1vjfegm > div > img.xz74otr'
+                                                    )
+                    if img_cont:
+                        img_urls.append(img_cont[0].get_attribute('src'))
+                else:
+                    imgs = parent_div[0].find_elements(By.TAG_NAME, 'img')
+                    for img in imgs:
+                        img_urls.append(img.get_attribute('src'))
+
+            except Exception as e:
+                return Response({'error': f"image not found {e}"}, status=status.HTTP_400_BAD_REQUEST)
+
+            title_container_divs = driver.find_elements(By.CSS_SELECTOR,'span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x14z4hjw.x3x7a5m.xngnso2.x1qb5hxa.x1xlr1w8.xzsf02u[dir="auto"]')
+            print(title_container_divs)
+            if len(title_container_divs) > 1:
+                print(title_container_divs[1].text)
+                title_text = title_container_divs[1].text
+        
+            
+            price_elements = driver.find_elements(By.CSS_SELECTOR, 
+                'div.x1xmf6yo > div > .x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x676frb.x1lkfr7t.x1lbecb7.x1s688f.xzsf02u'
+            )
+            
+            if len(price_elements) == 0:
+                price_elements = driver.find_elements(By.CSS_SELECTOR, 
+                    'div.x1xmf6yo > div > .x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x676frb.x1lkfr7t.x1lbecb7.xk50ysn.xzsf02u'
+                )
+            
+            if len(price_elements) > 0:
+                print(price_elements[0].text)
+                price = price_elements[0].text
+            
+            def click_seemore():
+                try:
+                    see_more_element  = driver.find_element(By.XPATH, '//div[@role="button" and .//span[text()="See more"]]')        
+                    if see_more_element:
+                        see_more_element.click()
+                except Exception as e:
+                    print('exception')
+
+        
+            click_seemore()
+            description_elements = driver.find_elements(By.CSS_SELECTOR, 
+                'div.xz9dl7a.x4uap5.xsag5q8.xkhd6sd.x126k92a > div > span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x3x7a5m.x6prxxf.xvq8zen.xo1l8bm.xzsf02u'
+            )
+            
+            # Return the text content of the first element if it exists
+            if len(description_elements) != 0:
+                print(description_elements[0].text)
+                description =  description_elements[0].text
+            
+            return Response({
+                'images': img_urls,
+                'title': title_text,
+                'price': price,
+                'description': description,
+            }, status=status.HTTP_200_OK)
+        except:
+            return Response({'error':'some error occured'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        
+      
