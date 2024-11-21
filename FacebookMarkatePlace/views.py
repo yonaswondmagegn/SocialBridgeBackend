@@ -196,7 +196,7 @@ class GetProduct(APIView):
             chrome_otp = Options()
 
             chrome_otp = Options()
-            # chrome_otp.add_argument("--headless=new")
+            chrome_otp.add_argument("--headless=new")
             chrome_otp.add_argument("--no-sandbox")
             chrome_otp.add_argument("--disable-dev-shm-usage")
             chrome_otp.add_argument("--window-size=1920,1080")
