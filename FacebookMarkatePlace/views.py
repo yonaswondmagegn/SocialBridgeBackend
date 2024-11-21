@@ -197,10 +197,10 @@ class GetProduct(APIView):
 
             chrome_otp = Options()
             # chrome_otp.add_argument("--headless=new")
-            # chrome_otp.add_argument("--no-sandbox")
-            # chrome_otp.add_argument("--disable-dev-shm-usage")
-            # chrome_otp.add_argument("--window-size=1920,1080")
-            # chrome_otp.add_argument("--remote-debugging-port=9222")
+            chrome_otp.add_argument("--no-sandbox")
+            chrome_otp.add_argument("--disable-dev-shm-usage")
+            chrome_otp.add_argument("--window-size=1920,1080")
+            chrome_otp.add_argument("--remote-debugging-port=9222")
 
             prefs = {
                 "profile.default_content_setting_values.notifications": 2
@@ -220,17 +220,15 @@ class GetProduct(APIView):
                 return Response({'error': 'cookie error'}, status=status.HTTP_400_BAD_REQUEST)
 
             driver.get(url)
-            input('enter to continue')
             
             img_urls = []
             title_text = ""
             price = ""
             description = ""
-
+        
             try:
                 # Locate parent div with the specific style
                 parent_div = driver.find_elements(By.CSS_SELECTOR,'.x6s0dn4.x78zum5.x1y1aw1k.xwib8y2.xu6gjpd.x11xpdln.x1r7x56h.xuxw1ft.xc9qbxq.x193iq5w[style="transform: translate3d(0px, 0px, 0px);"]')
-
                 if len(parent_div) == 0:
                     # Locate images in the alternative span > div > img structure
                     img_cont = driver.find_elements(By.CSS_SELECTOR,
@@ -245,26 +243,29 @@ class GetProduct(APIView):
 
             except Exception as e:
                 return Response({'error': f"image not found {e}"}, status=status.HTTP_400_BAD_REQUEST)
+         
+            title_js_text = driver.execute_script(
+                  "return document.querySelectorAll('span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x10flsy6.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.xw06pyt.xngnso2.x1qb5hxa.x1xlr1w8.xzsf02u')[1].innerText;"
+             )
+            title_text = title_js_text
+            price_elements_js = driver.execute_script(
+                    """
+                    let price = Array.from(document.querySelectorAll('div.x1xmf6yo >div > .x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x676frb.x1lkfr7t.x1lbecb7.x1s688f.xzsf02u'))
+                    if(price.length == 0){
+                        price = Array.from(document.querySelectorAll('div.x1xmf6yo >div > .x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x676frb.x1lkfr7t.x1lbecb7.xk50ysn.xzsf02u'))
+                    }
 
-            title_container_divs = driver.find_elements(By.CSS_SELECTOR,'span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x14z4hjw.x3x7a5m.xngnso2.x1qb5hxa.x1xlr1w8.xzsf02u[dir="auto"]')
-            print(title_container_divs)
-            if len(title_container_divs) > 1:
-                print(title_container_divs[1].text)
-                title_text = title_container_divs[1].text
-        
-            
-            price_elements = driver.find_elements(By.CSS_SELECTOR, 
-                'div.x1xmf6yo > div > .x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x676frb.x1lkfr7t.x1lbecb7.x1s688f.xzsf02u'
-            )
-            
-            if len(price_elements) == 0:
-                price_elements = driver.find_elements(By.CSS_SELECTOR, 
-                    'div.x1xmf6yo > div > .x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x676frb.x1lkfr7t.x1lbecb7.xk50ysn.xzsf02u'
+                    if(price.length > 0){
+                        return price[0]?.textContent
+                    }else{
+                        return 0
+                    }
+                    """
                 )
-            
-            if len(price_elements) > 0:
-                print(price_elements[0].text)
-                price = price_elements[0].text
+
+            print(price_elements_js)
+            price = price_elements_js
+
             
             def click_seemore():
                 try:
@@ -276,14 +277,25 @@ class GetProduct(APIView):
 
         
             click_seemore()
-            description_elements = driver.find_elements(By.CSS_SELECTOR, 
-                'div.xz9dl7a.x4uap5.xsag5q8.xkhd6sd.x126k92a > div > span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x3x7a5m.x6prxxf.xvq8zen.xo1l8bm.xzsf02u'
+            description_elements_js = driver.execute_script(
+                """
+                let description = Array.from(document.querySelectorAll('div.xz9dl7a.x4uap5.xsag5q8.xkhd6sd.x126k92a >div > span.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1xmvt09.x1lliihq.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.xudqn12.x3x7a5m.x6prxxf.xvq8zen.xo1l8bm.xzsf02u'))
+                if (description.length !==0){
+                    return description[0].textContent
+                }else{
+                    return ''
+                }
+                """
             )
-            
+            print(description_elements_js)
+
             # Return the text content of the first element if it exists
-            if len(description_elements) != 0:
-                print(description_elements[0].text)
-                description =  description_elements[0].text
+            if len(description_elements_js) > 0:
+                print(description_elements_js[0])
+                description = description_elements_js[0]
+            else:
+                print("No description elements found.")
+
             
             return Response({
                 'images': img_urls,
@@ -291,7 +303,8 @@ class GetProduct(APIView):
                 'price': price,
                 'description': description,
             }, status=status.HTTP_200_OK)
-        except:
+        except Exception as e:
+            print(e)
             return Response({'error':'some error occured'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         
